@@ -28,17 +28,26 @@ def get_single_order(id):
         if order["id"] == id:
             requested_order = order
 
-            matching_metal = get_single_metal(requested_order["metalId"])
-            requested_order["metal"] = matching_metal
-            requested_order.pop("metalId")
+            if "metalId" in requested_order:
+                matching_metal = get_single_metal(requested_order["metalId"])
+                requested_order["metal"] = matching_metal
+                requested_order.pop("metalId")
+            else:
+                ""
 
-            matching_style = get_single_style(requested_order["styleId"])
-            requested_order["style"] = matching_style
-            requested_order.pop("styleId")
+            if "styleId" in requested_order:
+                matching_style = get_single_style(requested_order["styleId"])
+                requested_order["style"] = matching_style
+                requested_order.pop("styleId")
+            else:
+                ""
 
-            matching_size = get_single_size(requested_order["sizeId"])
-            requested_order["size"] = matching_size
-            requested_order.pop("sizeId")
+            if "sizeId" in requested_order:
+                matching_size = get_single_size(requested_order["sizeId"])
+                requested_order["size"] = matching_size
+                requested_order.pop("sizeId")
+            else:
+                ""
 
     return requested_order
 

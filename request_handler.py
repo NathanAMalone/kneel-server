@@ -23,7 +23,7 @@ class HandleRequests(BaseHTTPRequestHandler):
 
     def do_GET(self):
         """Handles GET requests to the server """
-        self._set_headers(200)
+        
         response = {}
 
         (resource, id) = self.parse_url(self.path)
@@ -33,21 +33,50 @@ class HandleRequests(BaseHTTPRequestHandler):
                 response = get_single_metal(id)
             else:
                 response = get_all_metals()
+            if response is not None:
+                self._set_headers(200)
+            else:
+                self._set_headers(404)
+                response = {
+                    "message": "That metal is not currently in stock for jewelry"
+                }
+
         elif resource == "sizes":
             if id is not None:
                 response = get_single_size(id)
             else:
                 response = get_all_sizes()
+            if response is not None:
+                self._set_headers(200)
+            else:
+                self._set_headers(404)
+                response = {
+                    "message": "That size is not currently available"
+                }
         elif resource == "styles":
             if id is not None:
                 response = get_single_style(id)
             else:
                 response = get_all_styles()
+            if response is not None:
+                self._set_headers(200)
+            else:
+                self._set_headers(404)
+                response = {
+                    "message": "That style is not currently available"
+                }
         elif resource == "orders":
             if id is not None:
                 response = get_single_order(id)
             else:
                 response = get_all_orders()
+            if response is not None:
+                self._set_headers(200)
+            else:
+                self._set_headers(404)
+                response = {
+                    "message": "That order was never placed, or was cancelled."
+                }
         
         else:
             response = []
@@ -57,7 +86,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
     def do_POST(self):
-        self._set_headers(201)
+       
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
 
@@ -67,20 +96,27 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-        # Initialize new animal
+        # Initialize new order
         new_item = None
 
-        # Add a new animal to the list. Don't worry about
-        # the orange squiggle, you'll define the create_animal
+        # Add a new order to the list. Don't worry about
+        # the orange squiggle, you'll define the create_order
         # function next.
         if resource == "orders":
-            new_item = create_order(post_body)
+            if "metalId" in post_body and "sizeId" in post_body and "styleId" in post_body and "timestamp" in post_body:
+                self._set_headers(201)
+                new_item = create_order(post_body)
+            else:
+                self._set_headers(400)
+                new_item = { 
+                    "message": f'{"metalId is required" if "metalId" not in post_body else ""}' f'{"sizeId is required" if "sizeId" not in post_body else ""}'\
+                    f'{"styleId is required" if "styleId" not in post_body else ""}' f'{"timestamp is required" if "timestamp" not in post_body else ""}'
+                }
         
-        # Encode the new animal and send in response
+        # Encode the new order and send in response
         self.wfile.write(json.dumps(new_item).encode())
 
     def do_PUT(self):
-        self._set_headers(204)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
@@ -88,12 +124,15 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-        # Delete a single animal from the list
+        # Delete a single order from the list
         if resource == "orders":
-            update_order(id, post_body)
+            self._set_headers(405)
+            message = {
+                "message": f'{"VERBOTEN!! Production has begun and modification of orders is not allowed"}'
+            }
 
-        # Encode the new animal and send in response
-        self.wfile.write("".encode())
+        # Encode the new order and send in response
+        self.wfile.write(json.dumps(message).encode())
         
     def _set_headers(self, status):
         """Sets the status code, Content-Type and Access-Control-Allow-Origin
