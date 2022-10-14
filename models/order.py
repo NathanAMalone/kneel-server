@@ -8,3 +8,4 @@ class Order():
         self.metalId = metalId
         self.sizeId = sizeId
         self.styleId = styleId
+        self.timestamp = timestamp
