@@ -62,3 +62,12 @@ SELECT
     o.style_id,
     o.timestamp
 FROM Orders o
+
+SELECT
+    o.id,
+    o.metal_id,
+    o.size_id,
+    o.style_id,
+    o.timestamp
+FROM Orders o
+WHERE o.id = 2

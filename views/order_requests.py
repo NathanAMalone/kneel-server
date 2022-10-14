@@ -42,47 +42,70 @@ def get_all_orders():
         for row in dataset:
 
             order = Order(row['id'], row['metal_id'], row['size_id'],
-                            row['style_id'], row['timestamp'],)
+                            row['style_id'], row['timestamp'])
         
             orders.append(order.__dict__)
 
     return orders
 
 # Function with a single parameter
+# def get_single_order(id):
+#     # Variable to hold the found order, if it exists
+#     requested_order = None
+
+#     # Iterate the ORDERS list above. Very similar to the
+#     # for..of loops you used in JavaScript.
+#     for order in ORDERS:
+#         # Dictionaries in Python use [] notation to find a key
+#         # instead of the dot notation that JavaScript used.
+#         if order["id"] == id:
+#             requested_order = order
+
+#             if "metalId" in requested_order:
+#                 matching_metal = get_single_metal(requested_order["metalId"])
+#                 requested_order["metal"] = matching_metal
+#                 requested_order.pop("metalId")
+#             else:
+#                 ""
+
+#             if "styleId" in requested_order:
+#                 matching_style = get_single_style(requested_order["styleId"])
+#                 requested_order["style"] = matching_style
+#                 requested_order.pop("styleId")
+#             else:
+#                 ""
+
+#             if "sizeId" in requested_order:
+#                 matching_size = get_single_size(requested_order["sizeId"])
+#                 requested_order["size"] = matching_size
+#                 requested_order.pop("sizeId")
+#             else:
+#                 ""
+
+#     return requested_order
+
 def get_single_order(id):
-    # Variable to hold the found order, if it exists
-    requested_order = None
+    with sqlite3.connect("./kneeldiamonds.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
 
-    # Iterate the ORDERS list above. Very similar to the
-    # for..of loops you used in JavaScript.
-    for order in ORDERS:
-        # Dictionaries in Python use [] notation to find a key
-        # instead of the dot notation that JavaScript used.
-        if order["id"] == id:
-            requested_order = order
+        db_cursor.execute("""
+        SELECT
+            o.id,
+            o.metal_id,
+            o.size_id,
+            o.style_id,
+            o.timestamp
+        FROM Orders o
+        WHERE o.id = ?
+        """, ( id, ))
 
-            if "metalId" in requested_order:
-                matching_metal = get_single_metal(requested_order["metalId"])
-                requested_order["metal"] = matching_metal
-                requested_order.pop("metalId")
-            else:
-                ""
+        data = db_cursor.fetchone()
 
-            if "styleId" in requested_order:
-                matching_style = get_single_style(requested_order["styleId"])
-                requested_order["style"] = matching_style
-                requested_order.pop("styleId")
-            else:
-                ""
+        order = Order(data['id'], data['metal_id'], data['size_id'],
+                            data['style_id'], data['timestamp'])
 
-            if "sizeId" in requested_order:
-                matching_size = get_single_size(requested_order["sizeId"])
-                requested_order["size"] = matching_size
-                requested_order.pop("sizeId")
-            else:
-                ""
-
-    return requested_order
+        return order.__dict__
 
 def create_order(order):
     # Get the id value of the last order in the list
