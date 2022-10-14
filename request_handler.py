@@ -2,7 +2,7 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from views import get_all_metals, get_all_orders, get_all_sizes, get_all_styles
 from views import get_single_metal, get_single_order, get_single_size, get_single_style
-from views import create_order, delete_order, update_order
+from views import create_order, delete_order, update_order, update_metal
 
 class HandleRequests(BaseHTTPRequestHandler):
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
@@ -124,15 +124,27 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
+        success = False
+
         # Delete a single order from the list
         if resource == "orders":
             self._set_headers(405)
             message = {
                 "message": f'{"VERBOTEN!! Production has begun and modification of orders is not allowed"}'
             }
+            self.wfile.write(json.dumps(message).encode())
+        
+        elif resource == "metals":
+            success = update_metal(id, post_body)
+
+        if success:
+            self._set_headers(204)
+            self.wfile.write("".encode())
+        else:
+            self._set_headers(404)
+            self.wfile.write("".encode())
 
         # Encode the new order and send in response
-        self.wfile.write(json.dumps(message).encode())
         
     def _set_headers(self, status):
         """Sets the status code, Content-Type and Access-Control-Allow-Origin

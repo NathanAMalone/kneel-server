@@ -28,9 +28,11 @@ CREATE TABLE `Sizes`
 CREATE TABLE `Styles`
 (
     `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    `carets` NVARCHAR(160) NOT NULL,
+    `style` NVARCHAR(160) NOT NULL,
     `price` NUMERIC(5,2) NOT NULL
 );
+
+DROP TABLE `Styles`
 
 INSERT INTO `Metals` VALUES (null, 'Sterling Silver', 12.42);
 INSERT INTO `Metals` VALUES (null, '14k Gold', 736.4);
@@ -72,4 +74,20 @@ SELECT
 FROM Orders o
 WHERE o.id = 2
 
-SELECT * FROM Orders
+SELECT * FROM Styles
+
+SELECT
+    o.timestamp,
+    o.size_id,
+    o.style_id,
+    o.metal_id,
+    m.metal metals_metal,
+    m.price metals_price,
+    st.style styles_style,
+    st.price styles_price,
+    si.carets sizes_carets,
+    si.price sizes_price
+FROM `Orders` o
+JOIN Metals m ON m.id = o.metal_id
+JOIN Styles st ON st.id = o.style_id
+JOIN Sizes si ON si.id = o.size_id

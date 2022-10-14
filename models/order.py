@@ -9,3 +9,6 @@ class Order():
         self.sizeId = sizeId
         self.styleId = styleId
         self.timestamp = timestamp
+        self.metal = None
+        self.size = None
+        self.style = None
