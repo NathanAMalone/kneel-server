@@ -1,4 +1,3 @@
-from importlib import import_module
 import sqlite3
 import json
 from models import Order
@@ -107,36 +106,63 @@ def get_single_order(id):
 
         return order.__dict__
 
-def create_order(order):
-    # Get the id value of the last order in the list
-    max_id = ORDERS[-1]["id"]
+# def create_order(order):
+#     # Get the id value of the last order in the list
+#     max_id = ORDERS[-1]["id"]
 
-    # Add 1 to whatever that number is
-    new_id = max_id + 1
+#     # Add 1 to whatever that number is
+#     new_id = max_id + 1
 
-    # Add an `id` property to the order dictionary
-    order["id"] = new_id
+#     # Add an `id` property to the order dictionary
+#     order["id"] = new_id
 
-    # Add the order dictionary to the list
-    ORDERS.append(order)
+#     # Add the order dictionary to the list
+#     ORDERS.append(order)
 
-    # Return the dictionary with `id` property added
-    return order
+#     # Return the dictionary with `id` property added
+#     return order
+
+def create_order(new_order):
+    with sqlite3.connect("./kneeldiamonds.sqlite3") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        INSERT INTO Orders
+            ( metal_id, size_id, style_id, timestamp )
+        VALUES
+            ( ?, ?, ?, ?);
+        """, (new_order['metalId'], new_order['sizeId'],
+              new_order['styleId'], new_order['timestamp'], ))
+
+        id = db_cursor.lastrowid
+
+        new_order['id'] = id
+
+    return new_order
+
+# def delete_order(id):
+#     # Initial -1 value for order index, in case one isn't found
+#     order_index = -1
+
+#     # Iterate the ORDERS list, but use enumerate() so that you
+#     # can access the index value of each item
+#     for index, order in enumerate(ORDERS):
+#         if order["id"] == id:
+#             # Found the order. Store the current index.
+#             order_index = index
+
+#     # If the order was found, use pop(int) to remove it from list
+#     if order_index >= 0:
+#         ORDERS.pop(order_index)
 
 def delete_order(id):
-    # Initial -1 value for order index, in case one isn't found
-    order_index = -1
+    with sqlite3.connect("./kneeldiamonds.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
-    # Iterate the ORDERS list, but use enumerate() so that you
-    # can access the index value of each item
-    for index, order in enumerate(ORDERS):
-        if order["id"] == id:
-            # Found the order. Store the current index.
-            order_index = index
-
-    # If the order was found, use pop(int) to remove it from list
-    if order_index >= 0:
-        ORDERS.pop(order_index)
+        db_cursor.execute("""
+        DELETE FROM Orders
+        WHERE id = ?
+        """, (id, ))
     
 def update_order(id, new_order):
     # Iterate the ORDERS list, but use enumerate() so that

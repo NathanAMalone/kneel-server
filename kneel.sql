@@ -71,3 +71,5 @@ SELECT
     o.timestamp
 FROM Orders o
 WHERE o.id = 2
+
+SELECT * FROM Orders
