@@ -1,5 +1,6 @@
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse
 from views import get_all_metals, get_all_orders, get_all_sizes, get_all_styles
 from views import get_single_metal, get_single_order, get_single_size, get_single_style
 from views import create_order, delete_order, update_order, update_metal
@@ -8,31 +9,37 @@ class HandleRequests(BaseHTTPRequestHandler):
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
     """
     def parse_url(self, path):
-        path_params = path.split("/")
-        resource = path_params[1]
+        url_components = urlparse(path)
+        path_params = url_components.path.strip("/").split("/")
+        query_params = []
+
+        if url_components.query != '':
+            query_params = url_components.query.split("&")
+
+        resource = path_params[0]
         id = None
 
         try:
-           id = int(path_params[2])
+            id = int(path_params[1])
         except IndexError:
             pass
         except ValueError:
             pass
 
-        return (resource, id)  # This is a tuple
+        return (resource, id, query_params)  # This is a tuple
 
     def do_GET(self):
         """Handles GET requests to the server """
         
         response = {}
 
-        (resource, id) = self.parse_url(self.path)
+        (resource, id, query_params) = self.parse_url(self.path)
 
         if resource == "metals":
             if id is not None:
                 response = get_single_metal(id)
             else:
-                response = get_all_metals()
+                response = get_all_metals(query_params)
             if response is not None:
                 self._set_headers(200)
             else:
@@ -45,7 +52,7 @@ class HandleRequests(BaseHTTPRequestHandler):
             if id is not None:
                 response = get_single_size(id)
             else:
-                response = get_all_sizes()
+                response = get_all_sizes(query_params)
             if response is not None:
                 self._set_headers(200)
             else:
@@ -57,7 +64,7 @@ class HandleRequests(BaseHTTPRequestHandler):
             if id is not None:
                 response = get_single_style(id)
             else:
-                response = get_all_styles()
+                response = get_all_styles(query_params)
             if response is not None:
                 self._set_headers(200)
             else:
@@ -94,7 +101,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         post_body = json.loads(post_body)
 
         # Parse the URL
-        (resource, id) = self.parse_url(self.path)
+        (resource, id, query_params) = self.parse_url(self.path)
 
         # Initialize new order
         new_item = None
@@ -122,7 +129,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         post_body = json.loads(post_body)
 
         # Parse the URL
-        (resource, id) = self.parse_url(self.path)
+        (resource, id, query_params) = self.parse_url(self.path)
 
         success = False
 
@@ -172,7 +179,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         self._set_headers(204)
 
     # Parse the URL
-        (resource, id) = self.parse_url(self.path)
+        (resource, id, query_params) = self.parse_url(self.path)
 
     # Delete a single order from the list
         if resource == "orders":
