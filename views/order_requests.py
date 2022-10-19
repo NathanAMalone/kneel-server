@@ -31,10 +31,13 @@ def get_all_orders():
             o.size_id,
             o.style_id,
             o.metal_id,
+            m.id metals_id,
             m.metal metals_metal,
             m.price metals_price,
+            st.id styles_id,
             st.style styles_style,
             st.price styles_price,
+            si.id sizes_id,
             si.carets sizes_carets,
             si.price sizes_price
         FROM `Orders` o
@@ -52,11 +55,11 @@ def get_all_orders():
             order = Order(row['id'], row['timestamp'], row['size_id'],
                             row['style_id'], row['metal_id'])
             
-            metal = Metal(row['id'], row['metals_metal'], row['metals_price'])
+            metal = Metal(row['metals_id'], row['metals_metal'], row['metals_price'])
 
-            style = Style(row['id'], row['styles_style'], row['styles_price'])
+            style = Style(row['styles_id'], row['styles_style'], row['styles_price'])
 
-            size = Size(row['id'], row['sizes_carets'], row['sizes_price'])
+            size = Size(row['sizes_id'], row['sizes_carets'], row['sizes_price'])
 
             order.metal = metal.__dict__
 
